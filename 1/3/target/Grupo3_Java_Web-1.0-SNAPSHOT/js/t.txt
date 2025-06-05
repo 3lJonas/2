@@ -1,0 +1,25 @@
+-- Tabla de estudiantes
+CREATE TABLE estudiantes (
+    ced_est VARCHAR(20) PRIMARY KEY,
+    nom_est VARCHAR(100) NOT NULL,
+    ape_est VARCHAR(100) NOT NULL,
+    tel_est VARCHAR(20) NOT NULL,
+    dir_est VARCHAR(150) NOT NULL
+);
+
+-- Tabla de cursos
+CREATE TABLE cursos (
+    id_curso INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT
+);
+
+-- Tabla de matrículas
+CREATE TABLE matriculas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ced_est VARCHAR(20) NOT NULL,
+    id_curso INT NOT NULL,
+    fecha DATE NOT NULL,
+    FOREIGN KEY (ced_est) REFERENCES estudiantes(ced_est) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_curso) REFERENCES cursos(id_curso) ON DELETE CASCADE ON UPDATE CASCADE
+);

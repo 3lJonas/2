@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión Integral</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/StudentService.js"></script>
+    <script src="js/CursoService.js"></script>
+    <script src="js/MatriculaService.js"></script>
+</head>
+<body class="p-4">
+    <div class="container">
+        <h2 class="mb-4">Gestión de Estudiantes, Cursos y Matrículas</h2>
+        <ul class="nav nav-tabs mb-3" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="estudiantes-tab" data-bs-toggle="tab" data-bs-target="#estudiantes" type="button" role="tab">Estudiantes</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cursos-tab" data-bs-toggle="tab" data-bs-target="#cursos" type="button" role="tab">Cursos</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="matriculas-tab" data-bs-toggle="tab" data-bs-target="#matriculas" type="button" role="tab">Matrículas</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="mainTabsContent">
+            <!-- Estudiantes TAB -->
+            <div class="tab-pane fade show active" id="estudiantes" role="tabpanel">
+                <div class="mb-3">
+                    <button class="btn btn-primary" onclick="newUser()">Nuevo Estudiante</button>
+                    <button class="btn btn-success" onclick="editUser()">Editar</button>
+                    <button class="btn btn-danger" onclick="proxyDestroyUser()">Eliminar</button>
+                    <input placeholder="Cédula" id="cedulaInput" class="form-control d-inline-block" style="width:180px;display:inline-block;">
+                    <button class="btn btn-info" onclick="searchByCedula($('#cedulaInput').val())">Buscar por Cédula</button>
+                    <button class="btn btn-secondary" onclick="loadData()">Mostrar Todos</button>
+                </div>
+                <table class="table table-hover" id="userTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Dirección</th>
+                            <th>Teléfono</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody"></tbody>
+                </table>
+            </div>
+            <!-- Cursos TAB -->
+            <div class="tab-pane fade" id="cursos" role="tabpanel">
+                <div class="mb-3">
+                    <button class="btn btn-primary" onclick="newCurso()">Nuevo Curso</button>
+                    <button class="btn btn-success" onclick="editCurso()">Editar</button>
+                    <button class="btn btn-danger" onclick="proxyDestroyCurso()">Eliminar</button>
+                    <input placeholder="ID Curso" id="idCursoInput" class="form-control d-inline-block" style="width:120px;display:inline-block;">
+                    <button class="btn btn-info" onclick="searchCursoById($('#idCursoInput').val())">Buscar por ID</button>
+                    <button class="btn btn-secondary" onclick="loadCursos()">Mostrar Todos</button>
+                </div>
+                <table class="table table-hover" id="cursoTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Créditos</th>
+                            <th>Docente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cursoTableBody"></tbody>
+                </table>
+            </div>
+            <!-- Matrículas TAB -->
+            <div class="tab-pane fade" id="matriculas" role="tabpanel">
+                <div class="mb-3">
+                    <button class="btn btn-primary" onclick="newMatricula()">Nueva Matrícula</button>
+                    <button class="btn btn-success" onclick="editMatricula()">Editar</button>
+                    <button class="btn btn-danger" onclick="proxyDestroyMatricula()">Eliminar</button>
+                    <input placeholder="ID Matrícula" id="idMatriculaInput" class="form-control d-inline-block" style="width:120px;display:inline-block;">
+                    <button class="btn btn-info" onclick="searchMatriculaById($('#idMatriculaInput').val())">Buscar por ID</button>
+                    <button class="btn btn-secondary" onclick="loadMatriculas()">Mostrar Todos</button>
+                </div>
+                <table class="table table-hover" id="matriculaTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Cédula Estudiante</th>
+                            <th>ID Curso</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matriculaTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALES -->
+    <!-- Modal Estudiante -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="fm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitle">Información del Estudiante</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="ced_est" class="form-label">Cédula <span class="text-danger">*</span></label>
+                            <input type="text" name="ced_est" id="ced_est" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nom_est" class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" name="nom_est" id="nom_est" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ape_est" class="form-label">Apellido <span class="text-danger">*</span></label>
+                            <input type="text" name="ape_est" id="ape_est" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tel_est" class="form-label">Teléfono <span class="text-danger">*</span></label>
+                            <input type="tel" name="tel_est" id="tel_est" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dir_est" class="form-label">Dirección <span class="text-danger">*</span></label>
+                            <input type="text" name="dir_est" id="dir_est" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success" onclick="saveUser()">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Curso -->
+    <div class="modal fade" id="cursoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="fmCurso">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cursoModalTitle">Información del Curso</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="id_curso" class="form-label">ID (solo para edición)</label>
+                            <input type="number" name="id_curso" id="id_curso" class="form-control" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" name="nombre" id="nombre" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="creditos" class="form-label">Créditos <span class="text-danger">*</span></label>
+                            <input type="number" name="creditos" id="creditos" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="docente" class="form-label">Docente <span class="text-danger">*</span></label>
+                            <input type="text" name="docente" id="docente" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success" onclick="saveCurso()">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Matrícula -->
+    <div class="modal fade" id="matriculaModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="fmMatricula">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="matriculaModalTitle">Información de Matrícula</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="id_matricula" class="form-label">ID Matrícula (solo para edición)</label>
+                            <input type="number" name="id_matricula" id="id_matricula" class="form-control" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ced_est_m" class="form-label">Cédula Estudiante <span class="text-danger">*</span></label>
+                            <input type="text" name="ced_est" id="ced_est_m" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_curso_m" class="form-label">ID Curso <span class="text-danger">*</span></label>
+                            <input type="number" name="id_curso" id="id_curso_m" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fecha" class="form-label">Fecha <span class="text-danger">*</span></label>
+                            <input type="date" name="fecha" id="fecha" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-success" onclick="saveMatricula()">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+        <div id="toastMsg" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastBody"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
